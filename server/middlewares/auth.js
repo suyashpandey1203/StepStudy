@@ -78,7 +78,8 @@ exports.isAdmin = async (req, res, next) => {
 };
 exports.isInstructor = async (req, res, next) => {
 	try {
-		const userDetails = await User.findOne({ email: req.user.email });
+		const userDetails = await User.findById(req.user.id);
+//changed this for testing because it was not working (email to id have to look onto it)
 		console.log(userDetails);
 
 		console.log(userDetails.accountType);
