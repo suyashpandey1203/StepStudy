@@ -3,13 +3,18 @@ import Map from "./Map";
 
 const Bootcamp = () => {
   const [formData, setFormData] = useState({
-    bootcampName: "",
+    title: "",
     description: "",
+    technologies: "",
     maxStudents: 10,
-    maxInstructors: 2,
+    maxFaculty: 2,
     startDate: "",
     endDate: "",
-    location: { lat: "", lng: "" },
+    location: {
+      lat: "",
+      lng: "",
+      address: "",
+    },
   });
 
   const [showMap, setShowMap] = useState(false);
@@ -18,7 +23,6 @@ const Bootcamp = () => {
     lng: 77.209,
   });
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -28,7 +32,6 @@ const Bootcamp = () => {
     handleUseCurrentLocation();
   }, []);
 
-  // Handle "Use current location" button click
   const handleUseCurrentLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -36,61 +39,72 @@ const Bootcamp = () => {
           const { latitude, longitude } = pos.coords;
           setFormData((prev) => ({
             ...prev,
-            location: { lat: latitude, lng: longitude },
+            location: { ...prev.location, lat: latitude, lng: longitude },
           }));
           setCurrentLocation({ lat: latitude, lng: longitude });
         },
-        (err) => {
-          console.error("Location error:", err);
-        }
+        (err) => console.error("Location error:", err)
       );
     } else {
       alert("Geolocation is not supported by your browser");
     }
   };
 
-  // Handle location selection from map
-  const handleMapSelect = (lat, lng) => {
+  const handleMapSelect = (lat, lng, address = "") => {
     setFormData((prev) => ({
       ...prev,
-      location: { lat, lng },
+      location: { lat, lng, address },
     }));
   };
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Form Data:", formData);
-    // Submit the form data to the backend here
+
+    const payload = {
+      title: formData.title,
+      description: formData.description,
+      technologies: formData.technologies.split(",").map((tech) => tech.trim()),
+      maxStudents: formData.maxStudents,
+      maxFaculty: formData.maxFaculty,
+      startDate: formData.startDate,
+      endDate: formData.endDate,
+      location: {
+        type: "Point",
+        coordinates: [
+          parseFloat(formData.location.lng),
+          parseFloat(formData.location.lat),
+        ],
+        address: formData.location.address || "N/A",
+      },
+    };
+
+    console.log("Payload to submit:", payload);
+    // TODO: Send payload to backend (e.g., axios.post('/api/bootcamps', payload))
   };
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
-      {/* LoadScript is placed here, only once */}
-
       <div className="shadow-xl rounded-2xl p-6 bg-blue-200">
         <h2 className="text-2xl font-bold mb-4">Create Bootcamp</h2>
         <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Bootcamp Name */}
           <div>
             <label
-              htmlFor="bootcampName"
+              htmlFor="title"
               className="block font-medium text-gray-700 mb-1"
             >
               Bootcamp Name
             </label>
             <input
               type="text"
-              id="bootcampName"
-              name="bootcampName"
-              value={formData.bootcampName}
+              id="title"
+              name="title"
+              value={formData.title}
               onChange={handleChange}
               required
               className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-blue-100"
             />
           </div>
 
-          {/* Description */}
           <div>
             <label
               htmlFor="description"
@@ -109,7 +123,23 @@ const Bootcamp = () => {
             ></textarea>
           </div>
 
-          {/* Capacity */}
+          <div>
+            <label
+              htmlFor="technologies"
+              className="block font-medium text-gray-700 mb-1"
+            >
+              Technologies (comma-separated)
+            </label>
+            <input
+              type="text"
+              id="technologies"
+              name="technologies"
+              value={formData.technologies}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-blue-100"
+            />
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label
@@ -130,16 +160,16 @@ const Bootcamp = () => {
             </div>
             <div>
               <label
-                htmlFor="maxInstructors"
+                htmlFor="maxFaculty"
                 className="block font-medium text-gray-700 mb-1"
               >
                 Max Instructors
               </label>
               <input
                 type="number"
-                id="maxInstructors"
-                name="maxInstructors"
-                value={formData.maxInstructors}
+                id="maxFaculty"
+                name="maxFaculty"
+                value={formData.maxFaculty}
                 onChange={handleChange}
                 required
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 bg-blue-100"
@@ -147,7 +177,6 @@ const Bootcamp = () => {
             </div>
           </div>
 
-          {/* Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label
@@ -185,7 +214,6 @@ const Bootcamp = () => {
             </div>
           </div>
 
-          {/* Location */}
           <div>
             <label className="block font-medium text-gray-700 mb-1">
               Location
@@ -194,14 +222,14 @@ const Bootcamp = () => {
               <button
                 type="button"
                 onClick={handleUseCurrentLocation}
-                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm bg-blue-100"
+                className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded-lg text-sm"
               >
                 Use Current Location
               </button>
               <button
                 type="button"
                 onClick={() => setShowMap(true)}
-                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg text-sm bg-blue-100"
+                className="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1.5 rounded-lg text-sm"
               >
                 Select on Map
               </button>
@@ -213,7 +241,6 @@ const Bootcamp = () => {
             )}
           </div>
 
-          {/* Map Selection */}
           {showMap && (
             <div className="mt-4 border rounded-xl overflow-hidden">
               <Map
@@ -223,7 +250,6 @@ const Bootcamp = () => {
             </div>
           )}
 
-          {/* Submit */}
           <div className="pt-4">
             <button
               type="submit"
