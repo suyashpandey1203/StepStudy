@@ -41,4 +41,25 @@ export const sidebarLinks = [
     type: ACCOUNT_TYPE.STUDENT,
     icon: "VscHistory",
   },
+  {
+    id: 7,
+    name: "Start a bootcamp",
+    path: "/dashboard/start-bootcamp",
+    type: ACCOUNT_TYPE.INSTRUCTOR,
+    icon: "VscCalendar",
+  },
+  {
+    id: 8,
+    name: "Join a bootcamp",
+    path: "/dashboard/Join-bootcamp",
+    type: ACCOUNT_TYPE.INSTRUCTOR || ACCOUNT_TYPE.STUDENT,
+    icon: "VscBook",
+  },
+  {
+    id: 9,
+    name: "Status",
+    path: "/dashboard/status-bootcamp",
+    type: ACCOUNT_TYPE.INSTRUCTOR || ACCOUNT_TYPE.STUDENT,
+    icon: "VscClippy",
+  },
 ];
