@@ -42,7 +42,7 @@ function App() {
 
   return (
     <LoadScript
-      googleMapsApiKey="AIzaSyCiMSQwvJwTNT56iR0-oFkihvQKu0i5xPI"
+      googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}
       id="google-map-script"
     >
       <div className="w-screen min-h-screen bg-richblack-900 flex flex-col font-inter">
