@@ -6,7 +6,7 @@ const {
   applyToBootcamp,
   handleFacultySelection,
   getNearbyBootcampsForStudent,
-  enrollStudentInBootcamp
+  enrollStudentInBootcamp,
 } = require("../controllers/Bootcamp");
 
 const { auth, isInstructor, isStudent } = require("../middlewares/auth");

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Map from "./Map";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { createBootcamp } from "../../services/operations/bootcampApi";
 
 const Bootcamp = () => {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -13,7 +17,6 @@ const Bootcamp = () => {
     location: {
       lat: "",
       lng: "",
-      address: "",
     },
   });
 
@@ -59,27 +62,42 @@ const Bootcamp = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const { lat, lng, ...rest } = formData.location;
 
-    const payload = {
-      title: formData.title,
-      description: formData.description,
+    const bootcampData = {
+      ...formData,
       technologies: formData.technologies.split(",").map((tech) => tech.trim()),
-      maxStudents: formData.maxStudents,
-      maxFaculty: formData.maxFaculty,
-      startDate: formData.startDate,
-      endDate: formData.endDate,
       location: {
         type: "Point",
-        coordinates: [
-          parseFloat(formData.location.lng),
-          parseFloat(formData.location.lat),
-        ],
-        address: formData.location.address || "N/A",
+        coordinates: [parseFloat(lng), parseFloat(lat)],
+        ...rest, // keeps address if provided
       },
     };
 
-    console.log("Payload to submit:", payload);
-    // TODO: Send payload to backend (e.g., axios.post('/api/bootcamps', payload))
+    console.log("Bootcamp Data:", bootcampData);
+
+    const sendData = async () => {
+      try {
+        const token1 = localStorage.getItem("token");
+        const token = token1.slice(1, -1);
+
+        const response = await axios.post(
+          "http://localhost:4000/api/v1/bootcamp/create",
+          bootcampData,
+          {
+            headers: {
+              Authorization: token, // ← include Bearer prefix
+            },
+          }
+        );
+
+        console.log("Bootcamp created successfully:", response.data);
+      } catch (error) {
+        console.error("Error creating bootcamp:", error);
+      }
+    };
+
+    sendData();
   };
 
   return (

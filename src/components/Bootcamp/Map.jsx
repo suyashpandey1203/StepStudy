@@ -19,8 +19,6 @@ const Map = ({ onSelectLocation, initialLocation }) => {
     initialLocation || center
   );
 
-  console.log("Selected Location:", selectedLocation);
-
   const handleMapClick = (e) => {
     const { latLng } = e;
     const newLat = latLng.lat();
