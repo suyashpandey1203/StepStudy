@@ -86,6 +86,30 @@ exports.handleFacultySelection = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+//get controller for frontend to fetch all bootcamps from db
+exports.getBootcampsForJoinPage = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+
+    if (user.accountType === "Student") {
+      // Fetch bootcamps open for enrollment
+      const bootcamps = await Bootcamp.find({ status: "Upcoming" });
+      return res.status(200).json({ success: true, role: "Student", data: bootcamps });
+    }
+
+    if (user.accountType === "Instructor") {
+      // Fetch bootcamps that are looking for faculty
+      const bootcamps = await Bootcamp.find({ maxFaculty: { $gt: 0 } });
+      return res.status(200).json({ success: true, role: "Instructor", data: bootcamps });
+    }
+
+    return res.status(403).json({ success: false, message: "Access Denied" });
+
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 // 5. Nearby Bootcamps for Student
 exports.getNearbyBootcampsForStudent = async (req, res) => {
