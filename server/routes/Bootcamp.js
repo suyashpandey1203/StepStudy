@@ -7,6 +7,7 @@ const {
   handleFacultySelection,
   getNearbyBootcampsForStudent,
   enrollStudentInBootcamp,
+  getBootcampsForJoinPage
 } = require("../controllers/Bootcamp");
 
 const { auth, isInstructor, isStudent } = require("../middlewares/auth");
@@ -20,5 +21,6 @@ router.post("/select-faculty", auth, isInstructor, handleFacultySelection);
 // Student Routes
 router.get("/nearby", auth, isStudent, getNearbyBootcampsForStudent);
 router.post("/enroll", auth, isStudent, enrollStudentInBootcamp);
+router.get("/all", auth,getBootcampsForJoinPage);
 
 module.exports = router;
