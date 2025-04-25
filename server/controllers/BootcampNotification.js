@@ -1,7 +1,6 @@
 const Notification = require("../models/Notification");
 const User = require("../models/User");
 
-// Send request to bootcamp owner
 exports.sendBootcampRequest = async (req, res) => {
   try {
     const { bootcampOwnerId, message, resumeUrl } = req.body;
