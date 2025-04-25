@@ -45,8 +45,10 @@ app.use("/api/v1/course", courseRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/reach", contactUsRoute);
 
-app.use("/api/v1/notification", require("./routes/Notification"));
+//app.use("/api/v1/notification", require("./routes/Notification"));
 app.use("/api/v1/bootcamp", bootcampRoutes);
+app.use("/api/v1/bootcamp-notify", require("./routes/BootcampNotification"));
+
 //def route
 
 app.get("/", (req, res) => {
