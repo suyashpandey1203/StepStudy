@@ -1,37 +1,28 @@
 const mongoose = require("mongoose");
 
 const notificationSchema = new mongoose.Schema({
-  recipient: {
+  sender: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
   },
-  role: {
-    type: String,
-    enum: ["student", "instructor"],
+  receiver: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  type: {
+    type: String, // "request" or "response"
+    enum: ["request", "response"],
     required: true,
   },
   message: {
     type: String,
     required: true,
   },
-  type: {
-    type: String,
-    enum: [
-      "faculty_invite",        // for instructor
-      "faculty_selected",      // for instructor
-      "faculty_rejected",      // for instructor
-      "student_enrolled",      // for student
-      "payment_success",       // for student
-      "bootcamp_update",       // both
-      "reminder",              // both
-    ],
-    default: "bootcamp_update",
-  },
-  link: {
-    type: String, // optional frontend redirect
-  },
-  isRead: {
+  resumeUrl: String, // for faculty upload
+  dateSuggested: Date, // if bootcamp owner replies
+  seen: {
     type: Boolean,
     default: false,
   },
