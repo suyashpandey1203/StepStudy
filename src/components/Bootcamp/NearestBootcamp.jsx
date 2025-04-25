@@ -15,76 +15,91 @@ const NearestBootcamp = ({ initialLocation, nearestBootcampList }) => {
   const [selectedLocation, setSelectedLocation] = useState(
     initialLocation || fallbackCenter
   );
+
   const [activeBootcamp, setActiveBootcamp] = useState(null);
 
-  return (
-    <div>
-      <GoogleMap
-        mapContainerStyle={containerStyle}
-        center={selectedLocation}
-        zoom={10}
+  const handleJoin = (bootcamp) => {
+    alert(`Request sent to join ${bootcamp.name}`);
+  };
+
+  const currentDate = new Date();
+
+  const categorizedBootcamps = {
+    active: [],
+    upcoming: [],
+    past: [],
+  };
+
+  nearestBootcampList?.forEach((bootcamp) => {
+    const startDate = new Date(bootcamp.startDate);
+    const endDate = new Date(bootcamp.endDate);
+
+    if (currentDate >= startDate && currentDate <= endDate) {
+      categorizedBootcamps.active.push(bootcamp);
+    } else if (currentDate < startDate) {
+      categorizedBootcamps.upcoming.push(bootcamp);
+    } else {
+      categorizedBootcamps.past.push(bootcamp);
+    }
+  });
+
+  const renderBootcampCards = (bootcamps) =>
+    bootcamps.map((bootcamp, index) => (
+      <div
+        key={index}
+        className="bg-white rounded-2xl p-5 shadow-md hover:shadow-xl transition cursor-pointer"
+        onClick={() =>
+          setSelectedLocation({ lat: bootcamp.lat, lng: bootcamp.lng })
+        }
       >
-        {/* User's current location */}
-        <Marker position={selectedLocation} label="You" />
-
-        {/* Bootcamp markers */}
-        {nearestBootcampList?.map((bootcamp, index) => (
-          <Marker
-            key={index}
-            position={{ lat: bootcamp.lat, lng: bootcamp.lng }}
-            onClick={() => setActiveBootcamp(bootcamp)}
-            label="B"
-          />
-        ))}
-
-        {/* InfoWindow for selected bootcamp */}
-        {activeBootcamp && (
-          <InfoWindow
-            position={{ lat: activeBootcamp.lat, lng: activeBootcamp.lng }}
-            onCloseClick={() => setActiveBootcamp(null)}
-          >
-            <div>
-              <h4 className="font-bold">{activeBootcamp.name}</h4>
-              <p>{activeBootcamp.description}</p>
-              <p>
-                🧑‍🎓 Students: {activeBootcamp.maxStudents} | 👨‍🏫 Instructors:{" "}
-                {activeBootcamp.maxInstructors}
-              </p>
-              <p>
-                📅 {activeBootcamp.startDate} to {activeBootcamp.endDate}
-              </p>
+        <div className="flex flex-col justify-between h-full space-y-2">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">
+              {bootcamp.title}
+            </h3>
+            <p className="text-sm text-gray-600">{bootcamp.description}</p>
+            <div className="text-sm mt-2 text-gray-700">
+              🧑‍🎓 {bootcamp.maxStudents} students | 👨‍🏫 {bootcamp.maxInstructors}{" "}
+              instructors
             </div>
-          </InfoWindow>
-        )}
-      </GoogleMap>
+            <div className="text-sm text-gray-500">
+              📅 {bootcamp.startDate} – {bootcamp.endDate}
+            </div>
+          </div>
 
-      {/* Bootcamp list below the map */}
-      <div className="mt-4">
-        <h2 className="text-xl font-semibold mb-2 text-white">
-          Nearest Bootcamps
-        </h2>
-        <ul className="space-y-2 bg-white">
-          {nearestBootcampList?.map((bootcamp, index) => (
-            <li
-              key={index}
-              className="p-4 border rounded-lg shadow hover:bg-gray-100 cursor-pointer"
-              onClick={() =>
-                setSelectedLocation({ lat: bootcamp.lat, lng: bootcamp.lng })
-              }
-            >
-              <h3 className="font-bold">{bootcamp.name}</h3>
-              <p>{bootcamp.description}</p>
-              <p>
-                🧑‍🎓 {bootcamp.maxStudents} students | 👨‍🏫{" "}
-                {bootcamp.maxInstructors} instructors
-              </p>
-              <p>
-                📅 {bootcamp.startDate} to {bootcamp.endDate}
-              </p>
-            </li>
-          ))}
-        </ul>
+          <button
+            className="mt-4 w-full bg-blue-600 text-white py-2 px-4 rounded-xl hover:bg-blue-700 transition"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleJoin(bootcamp);
+            }}
+          >
+            Join Bootcamp
+          </button>
+        </div>
       </div>
+    ));
+
+  return (
+    <div className="p-4 space-y-6">
+      <h2 className="text-2xl font-bold text-white mb-4">
+        🗺️ Nearest Bootcamps
+      </h2>
+
+      {["active", "upcoming", "past"].map((category) => (
+        <div key={category}>
+          <h3 className="text-xl font-semibold text-gray-700 capitalize mb-2 text-white">
+            {category} Bootcamps
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {categorizedBootcamps[category].length > 0 ? (
+              renderBootcampCards(categorizedBootcamps[category])
+            ) : (
+              <p className="text-gray-500">No {category} bootcamps.</p>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
