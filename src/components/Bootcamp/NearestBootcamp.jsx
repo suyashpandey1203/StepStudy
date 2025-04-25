@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
+import axios from "axios";
 
 const containerStyle = {
   width: "100%",
@@ -15,11 +16,48 @@ const NearestBootcamp = ({ initialLocation, nearestBootcampList }) => {
   const [selectedLocation, setSelectedLocation] = useState(
     initialLocation || fallbackCenter
   );
-
   const [activeBootcamp, setActiveBootcamp] = useState(null);
+  const [selectedBootcamp, setSelectedBootcamp] = useState(null);
+  const [showForm, setShowForm] = useState(false);
+  const [message, setMessage] = useState("");
+  const [resumeUrl, setResumeUrl] = useState("");
+  const [status, setStatus] = useState("");
 
   const handleJoin = (bootcamp) => {
-    alert(`Request sent to join ${bootcamp.name}`);
+    setActiveBootcamp(bootcamp);
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.post(
+        "http://localhost:4000/api/v1/bootcamp-notify/request",
+        {
+          bootcampOwnerId: activeBootcamp.createdBy, // ensure this field exists in bootcamp
+          message,
+          resumeUrl,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token").slice(1, -1),
+          },
+        }
+      );
+      console.log("Response:", res.data);
+
+      if (res.data.success) {
+        setStatus("Request sent successfully!");
+        setShowForm(false);
+        setMessage("");
+        setResumeUrl("");
+      } else {
+        setStatus("Failed to send request.");
+      }
+    } catch (error) {
+      setStatus("Server error. Please try again later.");
+    }
   };
 
   const currentDate = new Date();
@@ -81,25 +119,80 @@ const NearestBootcamp = ({ initialLocation, nearestBootcampList }) => {
     ));
 
   return (
-    <div className="p-4 space-y-6">
+    <div className="p-4 space-y-6 relative">
       <h2 className="text-2xl font-bold text-white mb-4">
         🗺️ Nearest Bootcamps
       </h2>
 
       {["active", "upcoming", "past"].map((category) => (
         <div key={category}>
-          <h3 className="text-xl font-semibold text-gray-700 capitalize mb-2 text-white">
+          <h3 className="text-xl font-semibold text-white capitalize mb-2">
             {category} Bootcamps
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {categorizedBootcamps[category].length > 0 ? (
               renderBootcampCards(categorizedBootcamps[category])
             ) : (
-              <p className="text-gray-500">No {category} bootcamps.</p>
+              <p className="text-gray-400">No {category} bootcamps.</p>
             )}
           </div>
         </div>
       ))}
+
+      {/* Modal Form */}
+      {showForm && activeBootcamp && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-xl shadow-lg w-full max-w-md p-6 relative">
+            <h2 className="text-xl font-semibold mb-4">
+              Join {activeBootcamp.title}
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Message
+                </label>
+                <textarea
+                  className="w-full border rounded p-2"
+                  rows="3"
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  required
+                ></textarea>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Resume URL
+                </label>
+                <input
+                  type="url"
+                  className="w-full border rounded p-2"
+                  value={resumeUrl}
+                  onChange={(e) => setResumeUrl(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="flex justify-between">
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                >
+                  Send Request
+                </button>
+                <button
+                  type="button"
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowForm(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+              {status && (
+                <p className="text-sm text-green-600 mt-2">{status}</p>
+              )}
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
