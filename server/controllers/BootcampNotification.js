@@ -89,7 +89,7 @@ exports.getNotifications = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-const Notification = require("../models/Notification");
+//const Notification = require("../models/Notification");
 
 exports.getNotificationsByReceiverId = async (req, res) => {
   try {
