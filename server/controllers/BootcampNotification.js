@@ -51,7 +51,6 @@ exports.getNotifications = async (req, res) => {
   try {
     // if user opne notification, it will see all send to it
 
-    
     const notifications = await Notification.find({ receiver: req.user.id })
       .sort({ createdAt: -1 })
       .populate("sender", "firstName lastName email");
@@ -64,11 +63,12 @@ exports.getNotifications = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
-const Notification = require("../models/Notification");
+//const Notification = require("../models/Notification");
 
 exports.getNotificationsByReceiverId = async (req, res) => {
   try {
     const { userId } = req.params;
+    console.log("userId", userId);
 
     const notifications = await Notification.find({ receiver: userId })
       .sort({ createdAt: -1 })
