@@ -13,12 +13,14 @@ import ProfileDropdown from "../core/Auth/ProfileDropDown";
 
 import { FiBell } from "react-icons/fi";
 import { Dialog } from "@headlessui/react";
+import axios from "axios";
 
 function Navbar() {
   const { token } = useSelector((state) => state.auth);
   const { user } = useSelector((state) => state.profile);
   const { totalItems } = useSelector((state) => state.cart);
   const location = useLocation();
+  const [notification, setNotification] = useState(false);
 
   const [subLinks, setSubLinks] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -37,6 +39,24 @@ function Navbar() {
       status: "unread",
     },
   ]);
+
+  useEffect(() => {
+    const getNotifications = async () => {
+      const token1 = localStorage.getItem("token");
+      const token2 = token1.slice(1, -1);
+      try {
+        const res = await axios.get(
+          "http://localhost:4000/api/v1/bootcamp-notify/request",
+          {
+            headers: {
+              Authorization: token, // ← include Bearer prefix
+            },
+          }
+        );
+        console.log("Bootcamps notify successfully:", res.data.data);
+      } catch (error) {}
+    };
+  }, []);
 
   const matchRoute = (route) => {
     return matchPath({ path: route }, location.pathname);
