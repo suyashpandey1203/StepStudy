@@ -26,6 +26,11 @@ function Navbar() {
   const [isDrawerOpen, setDrawerOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
+  // New States for Date Picker
+  const [acceptingNotif, setAcceptingNotif] = useState(null);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [isDatePickerOpen, setDatePickerOpen] = useState(false);
+
   const matchRoute = (route) => {
     return matchPath({ path: route }, location.pathname);
   };
@@ -40,9 +45,7 @@ function Navbar() {
         const res = await axios.get(
           `http://localhost:4000/api/v1/bootcamp-notify/${userId}`,
           {
-            headers: {
-              Authorization: token2,
-            },
+            headers: { Authorization: token2 },
           }
         );
         console.log("Notifications received successfully:", res.data);
@@ -75,31 +78,52 @@ function Navbar() {
     }
   }, [isDrawerOpen]);
 
-  // Accept / Reject Handlers
-  const handleAccept = async (notif) => {
-    console.log("Accepted:", notif);
+  // Handle Accept Click - open date picker
+  const handleAccept = (notif) => {
+    setAcceptingNotif(notif);
+    setDatePickerOpen(true);
+  };
+
+  // Submit Accept with selected date
+  const submitAccept = async () => {
+    if (!selectedDate) {
+      alert("Please select a date first!");
+      return;
+    }
     try {
       await axios.post(
-        `http://localhost:4000/api/v1/bootcamp-notify/accept`,
-        { notificationId: notif._id },
+        `http://localhost:4000/api/v1/bootcamp-notify/respond`,
+        {
+          originalNotificationId: acceptingNotif._id,
+          action: "Accept",
+          dateSuggested: selectedDate,
+        },
         {
           headers: {
             Authorization: localStorage.getItem("token")?.slice(1, -1),
           },
         }
       );
-      setNotifications((prev) => prev.filter((n) => n._id !== notif._id));
+      setNotifications((prev) =>
+        prev.filter((n) => n._id !== acceptingNotif._id)
+      );
+      setDatePickerOpen(false);
+      setSelectedDate("");
+      setAcceptingNotif(null);
     } catch (error) {
       console.error("Error accepting notification:", error);
     }
   };
 
+  // Handle Reject
   const handleReject = async (notif) => {
-    console.log("Rejected:", notif);
     try {
       await axios.post(
-        `http://localhost:4000/api/v1/bootcamp-notify/reject`,
-        { notificationId: notif._id },
+        `http://localhost:4000/api/v1/bootcamp-notify/respond`,
+        {
+          originalNotificationId: notif._id,
+          action: "Reject",
+        },
         {
           headers: {
             Authorization: localStorage.getItem("token")?.slice(1, -1),
@@ -182,7 +206,7 @@ function Navbar() {
             </ul>
           </nav>
 
-          {/* Login / Cart / Notification / Profile */}
+          {/* Cart / Notification / Profile */}
           <div className="hidden items-center gap-x-4 md:flex">
             {/* Notification Bell */}
             <div className="relative">
@@ -232,7 +256,7 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Drawer Panel for Notifications */}
+      {/* Notifications Drawer */}
       <Dialog
         open={isDrawerOpen}
         onClose={() => setDrawerOpen(false)}
@@ -283,24 +307,59 @@ function Navbar() {
                   </p>
                 )}
 
-                {/* Accept/Reject Buttons */}
-                <div className="flex gap-3 mt-3">
-                  <button
-                    onClick={() => handleAccept(notif)}
-                    className="bg-green-500 text-white bg-caribbeangreen-400 px-3 py-1 rounded hover:bg-green-600 transition"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={() => handleReject(notif)}
-                    className="bg-red-500 text-white bg-pink-600 px-3 py-1 rounded hover:bg-red-600 transition"
-                  >
-                    Reject
-                  </button>
-                </div>
+                {/* Buttons */}
+                {notif.type === "request" && (
+                  <div className="flex gap-3 mt-3">
+                    <button
+                      onClick={() => handleAccept(notif)}
+                      className="bg-green-500 text-white bg-caribbeangreen-600 px-3 py-1 rounded hover:bg-green-600 transition"
+                    >
+                      Accept
+                    </button>
+                    <button
+                      onClick={() => handleReject(notif)}
+                      className="bg-red-500 text-white px-3 py-1 bg-pink-600 rounded hover:bg-red-600 transition"
+                    >
+                      Reject
+                    </button>
+                  </div>
+                )}
               </div>
             ))
           )}
+        </div>
+      </Dialog>
+
+      {/* Date Picker Dialog */}
+      <Dialog
+        open={isDatePickerOpen}
+        onClose={() => setDatePickerOpen(false)}
+        className="fixed inset-0 z-50"
+      >
+        <div
+          className="fixed inset-0 bg-black bg-opacity-30"
+          aria-hidden="true"
+        />
+        <div className="fixed right-0 top-0 w-full max-w-md h-full bg-white text-black shadow-lg p-6 overflow-auto">
+          <button
+            onClick={() => setDatePickerOpen(false)}
+            className="text-right text-gray-500 hover:text-black mb-4"
+          >
+            Close ✖
+          </button>
+          <h2 className="text-xl font-bold mb-4">Select a Date</h2>
+          <input
+            type="datetime-local"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="w-full border border-gray-300 p-2 rounded mb-4"
+          />
+          <button
+            onClick={submitAccept}
+            className="bg-green-500 text-white px-4 py-2 bg-caribbeangreen-500 rounded hover:bg-green-600"
+          >
+            Confirm and Accept
+          </button>
         </div>
       </Dialog>
     </>
