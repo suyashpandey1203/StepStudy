@@ -3,6 +3,7 @@ import Map from "./Map";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { createBootcamp } from "../../services/operations/bootcampApi";
+import { toast } from "react-hot-toast";
 
 const Bootcamp = () => {
   const dispatch = useDispatch();
@@ -92,8 +93,26 @@ const Bootcamp = () => {
         );
 
         console.log("Bootcamp created successfully:", response.data);
+        toast.success("Bootcamp created successfully!");
       } catch (error) {
         console.error("Error creating bootcamp:", error);
+        toast.error("Failed to create bootcamp. Please try again.");
+      } finally {
+        setShowMap(false);
+        setFormData({
+          title: "",
+          description: "",
+          technologies: "",
+          maxStudents: 10,
+          maxFaculty: 2,
+          startDate: "",
+          endDate: "",
+          location: {
+            lat: "",
+            lng: "",
+          },
+        });
+        dispatch(createBootcamp(bootcampData));
       }
     };
 

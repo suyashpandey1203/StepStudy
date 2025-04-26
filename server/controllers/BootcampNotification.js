@@ -75,7 +75,6 @@ exports.getNotifications = async (req, res) => {
   try {
     // if user opne notification, it will see all send to it
 
-    
     const notifications = await Notification.find({ receiver: req.user.id })
       .sort({ createdAt: -1 })
       .populate("sender", "firstName lastName email");
@@ -94,6 +93,7 @@ exports.getNotifications = async (req, res) => {
 exports.getNotificationsByReceiverId = async (req, res) => {
   try {
     const { userId } = req.params;
+    console.log("userId", userId);
 
     const notifications = await Notification.find({ receiver: userId })
       .sort({ createdAt: -1 })

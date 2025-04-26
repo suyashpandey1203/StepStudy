@@ -1,6 +1,7 @@
 const Bootcamp = require("../models/BootCamp");
 const Resume = require("../models/Resume");
 const Notification = require("../models/Notification");
+const User = require("../models/User");
 
 // create bootcamp controller
 
@@ -130,17 +131,20 @@ exports.getBootcampsForJoinPage = async (req, res) => {
     if (user.accountType === "Student") {
       // Fetch bootcamps open for enrollment
       const bootcamps = await Bootcamp.find({ status: "Upcoming" });
-      return res.status(200).json({ success: true, role: "Student", data: bootcamps });
+      return res
+        .status(200)
+        .json({ success: true, role: "Student", data: bootcamps });
     }
 
     if (user.accountType === "Instructor") {
       // Fetch bootcamps that are looking for faculty
       const bootcamps = await Bootcamp.find({ maxFaculty: { $gt: 0 } });
-      return res.status(200).json({ success: true, role: "Instructor", data: bootcamps });
+      return res
+        .status(200)
+        .json({ success: true, role: "Instructor", data: bootcamps });
     }
 
     return res.status(403).json({ success: false, message: "Access Denied" });
-
   } catch (error) {
     return res.status(500).json({ success: false, message: error.message });
   }
