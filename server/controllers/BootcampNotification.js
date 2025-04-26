@@ -24,27 +24,51 @@ exports.sendBootcampRequest = async (req, res) => {
 };
 
 // Bootcamp owner sends response
+
 exports.respondToBootcampRequest = async (req, res) => {
   try {
-    const { receiverId, message, dateSuggested } = req.body;
+    const { originalNotificationId, action, dateSuggested } = req.body;
 
-    const notification = await Notification.create({
-      sender: req.user.id,
+    // Find the original notification (the request)
+    const originalNotification = await Notification.findById(originalNotificationId);
+    if (!originalNotification) {
+      return res.status(404).json({ success: false, message: "Original notification not found" });
+    }
+
+    const receiverId = originalNotification.sender; // The person who requested to join
+
+    // Build message based on action
+    let message = "";
+    if (action === "Accept") {
+      message = `Congratulations! Meeting scheduled on ${new Date(dateSuggested).toLocaleString()}.`;
+    } else if (action === "Reject") {
+      message = "Sorry, your request to join was declined.";
+    } else {
+      return res.status(400).json({ success: false, message: "Invalid action" });
+    }
+
+    // Create new notification for the sender
+    await Notification.create({
+      sender: req.user.id, // owner
       receiver: receiverId,
       type: "response",
       message,
-      dateSuggested,
+      dateSuggested: action === "Accept" ? dateSuggested : null,
     });
+
+    // ✅ Delete the original request notification
+    await Notification.findByIdAndDelete(originalNotificationId);
 
     res.status(200).json({
       success: true,
-      message: "Response sent successfully",
-      notification,
+      message: `Response '${action}' processed successfully.`,
     });
   } catch (err) {
+    console.error(err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 
 // Get notifications for logged-in user
 exports.getNotifications = async (req, res) => {
@@ -58,6 +82,7 @@ exports.getNotifications = async (req, res) => {
 
     res.status(200).json({
       success: true,
+      //Notificationotifications,
       notifications,
     });
   } catch (err) {
