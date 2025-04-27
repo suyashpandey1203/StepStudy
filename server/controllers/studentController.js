@@ -1,5 +1,5 @@
 // backend/controllers/studentController.js
-const CourseProgress = require("../models/courseProgress"); // note lowercase filename
+const CourseProgress = require("../models/CourseProgress"); // corrected casing
 const mongoose = require("mongoose");
 
 exports.getEnrolledInstructors = async (req, res) => {
@@ -15,25 +15,25 @@ exports.getEnrolledInstructors = async (req, res) => {
         populate: {
           path: "instructor",
           model: "User",
-          select: "name email role"
-        }
+          select: "name email role",
+        },
       })
       .lean();
 
     // 3) Extract populated instructors (under courseID)
     const instructors = progresses
-      .map(p => p.courseID?.instructor)
+      .map((p) => p.courseID?.instructor)
       .filter(Boolean);
 
     // 4) De-duplicate by _id
     const unique = Array.from(
-      new Map(instructors.map(i => [i._id.toString(), i])).values()
+      new Map(instructors.map((i) => [i._id.toString(), i])).values()
     );
 
     return res.status(200).json({
       success: true,
       count: unique.length,
-      data: unique
+      data: unique,
     });
   } catch (err) {
     console.error(err);

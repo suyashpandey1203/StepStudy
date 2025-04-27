@@ -62,4 +62,11 @@ export const sidebarLinks = [
     type: ACCOUNT_TYPE.INSTRUCTOR || ACCOUNT_TYPE.STUDENT,
     icon: "VscClippy",
   },
+  {
+    id: 10,
+    name: "Video Call",
+    path: "/dashboard/video-call",
+    type: ACCOUNT_TYPE.STUDENT,
+    icon: "VscClippy",
+  },
 ];
