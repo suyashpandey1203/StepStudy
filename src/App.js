@@ -33,7 +33,6 @@ import { LoadScript } from "@react-google-maps/api";
 import JoinBootcamp from "./components/Bootcamp/JoinBootcamp";
 
 import StatusBootcamp from "./components/Bootcamp/StatusBootcamp";
-
 function App() {
   //const dispatch = useDispatch();
   //const navigate = useNavigate();
