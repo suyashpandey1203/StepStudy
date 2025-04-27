@@ -11,25 +11,25 @@ exports.getEnrolledInstructors = async (req, res) => {
         path: "course",
         populate: {
           path: "instructor",
-          select: "name email role"       // pick whatever fields you need
-        }
+          select: "name email role", // pick whatever fields you need
+        },
       })
       .lean();
 
     // 2) extract instructors, de-duplicate by _id
     const instructors = progresses
-      .map(p => p.course?.instructor)
+      .map((p) => p.course?.instructor)
       .filter(Boolean);
 
     const unique = Array.from(
-      new Map(instructors.map(i => [i._id.toString(), i])).values()
+      new Map(instructors.map((i) => [i._id.toString(), i])).values()
     );
 
     // 3) return
     return res.status(200).json({
       success: true,
       count: unique.length,
-      data: unique
+      data: unique,
     });
   } catch (err) {
     console.error(err);

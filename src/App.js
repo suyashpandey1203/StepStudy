@@ -31,7 +31,7 @@ import Instructor from "./components/core/Dashboard/InstructorDashboard/Instruct
 import Bootcamp from "./components/Bootcamp/Bootcamp";
 import { LoadScript } from "@react-google-maps/api";
 import JoinBootcamp from "./components/Bootcamp/JoinBootcamp";
-
+import Videocall from "./components/Videocall/Videocall";
 import StatusBootcamp from "./components/Bootcamp/StatusBootcamp";
 function App() {
   //const dispatch = useDispatch();
@@ -133,6 +133,7 @@ function App() {
             )}
 
             <Route path="dashboard/join-bootcamp" element={<JoinBootcamp />} />
+            <Route path="dashboard/video-call" element={<Videocall />} />
             <Route
               path="dashboard/status-bootcamp"
               element={<StatusBootcamp />}
