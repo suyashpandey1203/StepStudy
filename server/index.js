@@ -13,7 +13,7 @@ const cors = require("cors");
 const {cloudinaryConnect } = require("./config/cloudinary");
 const fileUpload = require("express-fileupload");
 const dotenv = require("dotenv");
-
+const studentRoutes = require("./routes/studentRoutes");
 dotenv.config();
 const PORT = process.env.PORT || 4000;
 
@@ -44,7 +44,7 @@ app.use("/api/v1/profile", profileRoutes);
 app.use("/api/v1/course", courseRoutes);
 app.use("/api/v1/payment", paymentRoutes);
 app.use("/api/v1/reach", contactUsRoute);
-
+app.use("/api/student", studentRoutes);
 //app.use("/api/v1/notification", require("./routes/Notification"));
 app.use("/api/v1/bootcamp", bootcampRoutes);
 app.use("/api/v1/bootcamp-notify", require("./routes/BootcampNotification"));
