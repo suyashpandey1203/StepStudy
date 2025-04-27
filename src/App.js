@@ -31,7 +31,7 @@ import Instructor from "./components/core/Dashboard/InstructorDashboard/Instruct
 import Bootcamp from "./components/Bootcamp/Bootcamp";
 import { LoadScript } from "@react-google-maps/api";
 import JoinBootcamp from "./components/Bootcamp/JoinBootcamp";
-import Videocall from "./components/Videocall/Videocall";
+import Videocall from "./components/video_call/Videocall";
 import StatusBootcamp from "./components/Bootcamp/StatusBootcamp";
 function App() {
   //const dispatch = useDispatch();
