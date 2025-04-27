@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Videocall = () => {
   const [instructors, setInstructors] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchInstructors = async () => {
@@ -10,7 +12,7 @@ const Videocall = () => {
         const token = localStorage.getItem("token"); // Assuming you store the token in local storage
 
         const response = await axios.get(
-          "http://localhost:4000/api/student/instructors",
+          "http://localhost:4000/api/v1/student/instructors",
           {
             headers: {
               Authorization: token.slice(1, -1),
@@ -30,11 +32,27 @@ const Videocall = () => {
     fetchInstructors();
   }, []);
 
-  const handleVideoCall = (instructorId) => {
-    // Logic to start a video call (navigate to room, open call, etc.)
-    console.log("Starting call with instructor:", instructorId);
-    // Example: redirect to a call page
-    // navigate(`/videocall/${instructorId}`);
+  const handleVideoCall = async (instructorId) => {
+    const roomId = `${instructorId}`; // Combine user and instructor IDs to create a unique room
+    try {
+      const res = await axios.post(
+        "http://localhost:4000/api/v1/bootcamp-notify/request",
+        {
+          bootcampOwnerId: instructorId, // ensure this field exists in bootcamp
+          message: "Requesting a video call",
+          resumeUrl: "http://localhost:3000/dashboard/video-call/" + roomId,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token").slice(1, -1),
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Failed to send video call request:", error);
+    }
+
+    navigate(`/dashboard/video-call/${roomId}`); // Navigate to the video call page
   };
 
   return (

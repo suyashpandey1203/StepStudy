@@ -48,6 +48,7 @@ app.use("/api/v1/student", studentRoutes);
 //app.use("/api/v1/notification", require("./routes/Notification"));
 app.use("/api/v1/bootcamp", bootcampRoutes);
 app.use("/api/v1/bootcamp-notify", require("./routes/BootcampNotification"));
+app.use("/api/v1/video-call", require("./routes/videocall"));
 
 //def route
 

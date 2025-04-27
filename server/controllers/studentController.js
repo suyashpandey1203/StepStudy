@@ -1,5 +1,5 @@
 // backend/controllers/studentController.js
-const CourseProgress = require("../models/courseProgress"); // note lowercase filename
+const CourseProgress = require("../models/CourseProgress"); // corrected casing
 const mongoose = require("mongoose");
 
 exports.getEnrolledInstructors = async (req, res) => {
