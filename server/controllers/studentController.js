@@ -1,31 +1,35 @@
-const CourseProgress = require("../models/CourseProgress");
+// backend/controllers/studentController.js
+const CourseProgress = require("../models/courseProgress"); // note lowercase filename
 const mongoose = require("mongoose");
 
 exports.getEnrolledInstructors = async (req, res) => {
   try {
     const studentId = req.user.id;
 
-    // 1) find all progress records for this user, populate course → instructor
-    const progresses = await CourseProgress.find({ user: studentId })
+    // 1) Query by userId, not "user"
+    const progresses = await CourseProgress.find({ userId: studentId })
       .populate({
-        path: "course",
+        // 2) Populate courseID, then nested instructor
+        path: "courseID",
+        model: "Course",
         populate: {
           path: "instructor",
-          select: "name email role", // pick whatever fields you need
+          model: "User",
+          select: "name email role",
         },
       })
       .lean();
 
-    // 2) extract instructors, de-duplicate by _id
+    // 3) Extract populated instructors (under courseID)
     const instructors = progresses
-      .map((p) => p.course?.instructor)
+      .map((p) => p.courseID?.instructor)
       .filter(Boolean);
 
+    // 4) De-duplicate by _id
     const unique = Array.from(
       new Map(instructors.map((i) => [i._id.toString(), i])).values()
     );
 
-    // 3) return
     return res.status(200).json({
       success: true,
       count: unique.length,
